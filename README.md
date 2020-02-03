@@ -1,7 +1,6 @@
 Idea for the CPQ Custom Quote Process:
 
 Use Case:
-
 Business wants to create multiple quotes from one opportunity that all can be generated into orders
 Opportunity is long-term/programmatic/multiple sites and locations--desire to create multiple quotes and orders from one oppty
 Users will create a quote from the programmatic opportunity as normal
