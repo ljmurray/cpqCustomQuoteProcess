@@ -2,8 +2,8 @@ public with sharing class SetupQuoteForMultipleSites {
     public static void createChildOpportunities (List<SBQQ__Quote__c> quoteList) {
 
         List<SBQQ__Quote__c> quotesForSecondarySites = new List<SBQQ__Quote__c>();
-        List<Opportunity> newOpportunities = new List<Opportunity>();
         Set<Id> accIds = new Set<Id>();
+        Set<Id> opptyIds = new Set<Id>();
         
         for (SBQQ__Quote__c quoteCurrent : quoteList){
             //check if quote is intended for a secondary site
@@ -11,23 +11,34 @@ public with sharing class SetupQuoteForMultipleSites {
                 //add quote to list
                 quotesForSecondarySites.add(quoteCurrent);
                 accIds.add(quoteCurrent.SBQQ__Account__c);
+                opptyIds.add(quoteCurrent.SBQQ__Opportunity2__c);
             }
         }
-
+        
+        Map<Id, Opportunity> opptyParentMap = new Map<Id, Opportunity>([SELECT Id, Name FROM Opportunity WHERE Id IN: opptyIds]);
+        List<Opportunity> newOpportunities = new List<Opportunity>();
+        
         for (SBQQ__Quote__c quoteCurrent : quotesForSecondarySites){
                 //create a new opportunity for the secondary site quote
                 Opportunity newOppt = new Opportunity(
-                    Name = 'Site Opportunity of '+ quoteCurrent.SBQQ__Opportunity2__r.Name, 
+                    Name = 'Site Opportunity of '+ opptyParentMap.get(quoteCurrent.SBQQ__Opportunity2__c).Name, 
                     StageName='Prospecting', 
                     CloseDate=quoteCurrent.SBQQ__ExpirationDate__c,
                     //relate the new opportunity to the current one (the parent opportunity)
-                    ParentOpportunity__c = quoteCurrent.SBQQ__Opportunity2__c, 
-                    //assign the new opportunity to the quote, allowing the quote to use standard CPQ ordering functionality
-                    SBQQ__PrimaryQuote__c = quoteCurrent.Id
+                    ParentOpportunity__c = quoteCurrent.SBQQ__Opportunity2__c
                 );
+
                 //add the new opportunity to a list of opportunities to be inserted in bulk
                 newOpportunities.add(newOppt);   
         }
         insert newOpportunities;
+
+        //create a map of the opportunities that were just inserted--these are the opportunities for each site
+        Map<Id, Opportunity> opptySitesMap = new Map<Id, Opportunity>([SELECT Id, Name FROM Opportunity WHERE Id IN: newOpportunities]);
+
+        //run through the new quotes and assign them to the new opportunities
+        for (SBQQ__Quote__c quoteCurrent : quotesForSecondarySites){
+            //quoteCurrent.SBQQ__Opportunity2__c = opptySitesMap.get(quoteCurrent.)
+        }
     }
 }
