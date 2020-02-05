@@ -10,7 +10,7 @@ public with sharing class SetupQuoteForMultipleSites {
             if (quoteCurrent.Secondary_Site__c == TRUE){
                 //add quote to list
                 quotesForSecondarySites.add(quoteCurrent);
-                accIds.add(quoteCurrent.Account);
+                accIds.add(quoteCurrent.SBQQ__Account__c);
             }
         }
 
