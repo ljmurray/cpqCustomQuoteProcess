@@ -17,6 +17,7 @@ public with sharing class SetupQuoteForMultipleSites {
         
         Map<Id, Opportunity> opptyParentMap = new Map<Id, Opportunity>([SELECT Id, Name FROM Opportunity WHERE Id IN: opptyIds]);
         List<Opportunity> newOpportunities = new List<Opportunity>();
+        Map<Id,Opportunity> childOpportunitiesBySourceQuoteId = new Map<Id,Opportunity>();
         
         for (SBQQ__Quote__c quoteCurrent : quotesForSecondarySites){
                 //create a new opportunity for the secondary site quote
@@ -29,12 +30,13 @@ public with sharing class SetupQuoteForMultipleSites {
                 );
 
                 //add the new opportunity to a list of opportunities to be inserted in bulk
-                newOpportunities.add(newOppt);   
+                // newOpportunities.add(newOppt);   
+                childOpportunitiesBySourceQuoteId.put(quoteCurrent.Id,newOppt);
         }
-        insert newOpportunities;
+        insert childOpportunitiesBySourceQuoteId.values();
 
         //create a map of the opportunities that were just inserted--these are the opportunities for each site
-        Map<Id, Opportunity> opptySitesMap = new Map<Id, Opportunity>([SELECT Id, Name FROM Opportunity WHERE Id IN: newOpportunities]);
+        // Map<Id, Opportunity> opptySitesMap = new Map<Id, Opportunity>([SELECT Id, Name FROM Opportunity WHERE Id IN: newOpportunities]);
 
         //run through the new quotes and assign them to the new opportunities
         for (SBQQ__Quote__c quoteCurrent : quotesForSecondarySites){
