@@ -1,5 +1,5 @@
 public with sharing class SetupQuoteForMultipleSites {
-    public static void createChildOpportunities (List<SBQQ__Quote__c> quoteList) {
+    public static void createChildOpportunities(List<SBQQ__Quote__c> quoteList) {
 
         List<SBQQ__Quote__c> quotesForSecondarySites = new List<SBQQ__Quote__c>();
         //Set<Id> accIds = new Set<Id>();
@@ -36,9 +36,10 @@ public with sharing class SetupQuoteForMultipleSites {
         insert childOpportunitiesBySourceQuoteId.values();
 
         //run through the new quotes and assign them to the new opportunities
-        for (SBQQ__Quote__c quoteCurrent : quotesForSecondarySites){
-            quoteCurrent.SBQQ__Opportunity2__c = childOpportunitiesBySourceQuoteId.get(quoteCurrent.Id).Id;
+        List<SBQQ__Quote__c> quotesToUpdate = new List<SBQQ__Quote__c>([SELECT Id, Name, SBQQ__Opportunity2__c FROM SBQQ__Quote__c WHERE Id IN: childOpportunitiesBySourceQuoteId.keySet()]);
+        for (SBQQ__Quote__c qt : quotesToUpdate){
+            qt.SBQQ__Opportunity2__c = childOpportunitiesBySourceQuoteId.get(qt.Id).Id;
         }
-        update quotesForSecondarySites;
+        update quotesToUpdate;
     }
 }
