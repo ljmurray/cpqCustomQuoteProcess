@@ -2,7 +2,6 @@ public with sharing class SetupQuoteForMultipleSites {
     public static void createChildOpportunities(List<SBQQ__Quote__c> quoteList) {
 
         List<SBQQ__Quote__c> quotesForSecondarySites = new List<SBQQ__Quote__c>();
-        //Set<Id> accIds = new Set<Id>();
         Set<Id> opptyIds = new Set<Id>();
         
         for (SBQQ__Quote__c quoteCurrent : quoteList){
@@ -10,13 +9,11 @@ public with sharing class SetupQuoteForMultipleSites {
             if (quoteCurrent.Secondary_Site__c == TRUE){
                 //add quote to list
                 quotesForSecondarySites.add(quoteCurrent);
-                //accIds.add(quoteCurrent.SBQQ__Account__c);
                 opptyIds.add(quoteCurrent.SBQQ__Opportunity2__c);
             }
         }
         
-        Map<Id, Opportunity> opptyParentMap = new Map<Id, Opportunity>([SELECT Id, Name FROM Opportunity WHERE Id IN: opptyIds]);
-        //List<Opportunity> newOpportunities = new List<Opportunity>();
+        Map<Id,Opportunity> opptyParentMap = new Map<Id, Opportunity>([SELECT Id, Name FROM Opportunity WHERE Id IN: opptyIds]);
         Map<Id,Opportunity> childOpportunitiesBySourceQuoteId = new Map<Id,Opportunity>();
         
         for (SBQQ__Quote__c quoteCurrent : quotesForSecondarySites){
@@ -37,8 +34,8 @@ public with sharing class SetupQuoteForMultipleSites {
 
         //run through the new quotes and assign them to the new opportunities
         List<SBQQ__Quote__c> quotesToUpdate = new List<SBQQ__Quote__c>([SELECT Id, Name, SBQQ__Opportunity2__c FROM SBQQ__Quote__c WHERE Id IN: childOpportunitiesBySourceQuoteId.keySet()]);
-        for (SBQQ__Quote__c qt : quotesToUpdate){
-            qt.SBQQ__Opportunity2__c = childOpportunitiesBySourceQuoteId.get(qt.Id).Id;
+        for (SBQQ__Quote__c quoteCurrent : quotesToUpdate){
+            quoteCurrent.SBQQ__Opportunity2__c = childOpportunitiesBySourceQuoteId.get(quoteCurrent.Id).Id;
         }
         update quotesToUpdate;
     }
